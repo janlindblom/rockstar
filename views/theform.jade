@@ -1,0 +1,33 @@
+form(method="post", action="/submit", id="rockstarForm")
+  .row
+    .six.columns.end
+      label(for="fullName") Fullständigt namn:
+      input(type="text", name="fullName", id="fullName", class="required", value=fullName)
+      small#fullNameError
+  .row
+    .six.columns.end
+      label(for="emailAddress") E-mail:
+      input(type="text", id="emailAddress", name="emailAddress", class="required", value=emailAddress)
+      small#emailError
+  .row
+    .six.columns.end
+      label(for="streetAddress") Postadress:
+      input(type="text", id="streetAddress", name="streetAddress", class="required", value=streetAddress)
+      small#streetAddressError
+  .row
+    .two.columns
+      label(for="zipCode") Postnummer:
+      input(type="text", id="zipCode", name="zipCode", class="required", value=zipCode)
+      small#zipCodeError
+    .four.columns.end
+      label(for="city") Ort:
+      input(type="text", id="city", name="city", class="required", value=city)
+      small#cityError
+  .row
+    .six.columns.end
+      label(for="band") Vad heter ditt favoritband?
+      input(type="text", id="band", name="band", class="required", value=band)
+      small#bandError
+  .row
+    .twelve.columns
+      input(type="submit", value="Skicka!", class="radius button", name="submitButton", id="submitButton")
