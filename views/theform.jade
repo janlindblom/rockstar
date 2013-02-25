@@ -2,17 +2,26 @@ form(method="post", action="/submit", id="rockstarForm")
   .row
     .six.columns
       .row
-        .twelve.columns
+        .twelve.columns.vcard
+          p Tack 
+            span.fn.n #{fullName}!
+          p Vi kommer höra av oss till dig på #{emailAddress}, tills dess har vi registrerat att du bor på 
+            span.adr #{streetAddress}
+            , 
+            span.postal-code #{zipCode} 
+            span.city #{city}.
           label(for="fullName") Fullständigt namn:
           input(type="text", name="fullName", id="fullName", class="required", value=fullName)
           small#fullNameError
       .row
         .twelve.columns
+          p Vi kommer höra av oss till dig på #{emailAddress}, tills dess har vi registrerat att du bor på
           label(for="emailAddress") E-mail:
           input(type="text", id="emailAddress", name="emailAddress", class="required", value=emailAddress)
           small#emailError
       .row
         .twelve.columns
+          
           label(for="streetAddress") Postadress:
           input(type="text", id="streetAddress", name="streetAddress", class="required", value=streetAddress)
           small#streetAddressError
