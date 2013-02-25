@@ -5,6 +5,9 @@ block content
   #rockstarFormContainer
     form(method="post", action="/submit", id="rockstarForm")
       .row
+        .twelve.columns
+          p.lead Använd formuläret här för att skicka in din ansökan!
+      .row
           .six.columns.end
               label(for="fullName") Fullständigt namn:
               input(type="text", name="fullName", id="fullName", class="required")

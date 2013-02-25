@@ -46,12 +46,6 @@ function verifyEmail(req) {
   }
 }
 
-function parseBand(fromField) {
-    $.get("/topthree/" + encodeURI(fromField.value), function(jsonObject) {
-        $("#topThree").html(jsonObject);
-    });
-}
-
 function emailVerification(text) {
   if (verifyEmail(text)) {
     $("#emailError").text("");
@@ -62,25 +56,58 @@ function emailVerification(text) {
   }
 }
 
-function requiredFields() {
-  $("input.required").each(function() {
-    if ($(this).val() === '') {
-      
+function checkRequired(elem) {
+  var errorField = $(elem).next('small');
+  var hadError = false;
+  if ($(elem).val() === '') {
+    errorField.text('Det här fältet är obligatoriskt!');
+    errorField.addClass('error');
+    hadError = true;
+  } else {
+    errorField.text('');
+    errorField.removeClass('error');
+  }
+  return hadError;
+}
+
+function submitHandler(e) {
+  var bandName = $("#band").val();
+  e.preventDefault();
+  var errors = false;
+  $("input[type=text].required").each(function(e) {
+    hasError = checkRequired(this);
+    if (hasError) {
+      errors = hasError;
     }
   });
+  if (errors) {
+    $("#submitButton").addClass('disabled');
+  } else {
+    $.post("/submit", $("#rockstarForm").serialize(), function(html) {
+      $("#rockstarFormContainer").html(html);
+      emailVerification($("#emailAddress").val());
+      $.getJSON("/topthree/"+bandName, function(data) {
+        $("#topthree").html('<ol>');
+        $.each(data.tracks, function(key, val) {
+          $('<li/>', {html: '<a href="' + val.href + '">' + val.name + " (" + val.album.name + ")</a>"}).appendTo("#topthree");
+        });
+        $('</ol>').appendTo("#topthree");
+      });
+      $("#rockstarForm").submit(function(e) {
+        submitHandler(e);
+      });
+    });
+  }
+  return false;
 }
 
 $(document).ready(function($) {
-    $("#emailAddress").blur(function() {
-      emailVerification($(this).val());
-    });
-    
-    $("#rockstarForm").submit(function(e) {
-        e.preventDefault();
-        $.post("/submit", $("#rockstarForm").serialize(), function(html) {
-            $("#rockstarFormContainer").html(html);
-            emailVerification($("#emailAddress").val());
-        });
-        return false;
-    });
+  $("#emailAddress").blur(function() {
+    emailVerification($(this).val());
+  });
+  $("#rockstarForm").submit(function(e) {submitHandler(e)});
+  
+  $("input[type=text].required").focusout(function(e) {
+    checkRequired(this);
+  });
 });

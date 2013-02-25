@@ -1,7 +1,7 @@
 
 exports.validate = function(req, res) {
   
-  res.render('theform', {
+  res.render('submitted', {
     title: 'Rockstar Developer Wanted!',
     band: req.body.band,
     fullName: req.body.fullName,
