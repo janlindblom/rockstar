@@ -1,0 +1,28 @@
+!!! 5
+html
+  head
+    title= title
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width')
+    link(rel='stylesheet', href='/stylesheets/foundation.min.css')
+    link(rel='stylesheet', href='/stylesheets/app.css')
+    script(src='javascripts/modernizr.foundation.js')
+  body
+    .row
+      .twelve.columns
+        block content
+    footer.row
+      .twelve.columns
+        hr
+        .row
+          .six.columns
+            p Copyright © 2013 Jan Lindblom. No rights reserved.
+          .six.columns
+            ul.link-list.right
+              li
+                a(href='http://www.janlindblom.se') Personal Site
+              li
+                a(href='https://twitter.com/janerictobias') Twitter
+    script(src='javascripts/jquery.min.js')
+    script(src='javascripts/foundation.min.js')
+    script(src='javascripts/app.js')
