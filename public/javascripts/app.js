@@ -1,3 +1,4 @@
+// This block is from Foundation, no additions.
 ;(function ($, window, undefined) {
   'use strict';
 
@@ -37,6 +38,9 @@
 
 })(jQuery, this);
 
+// Here's where the app specific code starts!
+
+// Pattern matching for verifying an email address
 function verifyEmail(req) {
   var pattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
   if (pattern.test(req)) {
@@ -46,16 +50,21 @@ function verifyEmail(req) {
   }
 }
 
+// This one is used by the form to provide the right feedback
 function emailVerification(text) {
+  var hadError = false;
   if (verifyEmail(text)) {
     $("#emailError").text("");
     $("#emailError").removeClass("error");
+    hadError = true;
   } else {
     $("#emailError").text("Det där ser inte ut som någon e-postadress!");
     $("#emailError").addClass("error");
   }
+  return hadError;
 }
 
+// This one is used by the form to check required fields
 function checkRequired(elem) {
   var errorField = $(elem).next('small');
   var hadError = false;
@@ -70,28 +79,41 @@ function checkRequired(elem) {
   return hadError;
 }
 
+// This is the submit handler, we override the default to do submit using Ajax
 function submitHandler(e) {
   var bandName = $("#band").val();
+  // Here's where we override the default submit
   e.preventDefault();
   var errors = false;
+  // Check required fields
   $("input[type=text].required").each(function(e) {
     hasError = checkRequired(this);
     if (hasError) {
       errors = hasError;
     }
   });
-  if (errors) {
-    $("#submitButton").addClass('disabled');
-  } else {
+  
+  // Were there any errors?
+  if (!errors) {
+    // No errors! Submit! Submit!
     $.post("/submit", $("#rockstarForm").serialize(), function(html) {
+      // In the success handler, let's overwrite some content with feedback.
       $("#rockstarFormContainer").html(html);
-      emailVerification($("#emailAddress").val());
+      // Let's fetch some songs!
+      // The /topthree route returns the three first tracks by a given artist as JSON.
       $.getJSON("/topthree/"+bandName, function(data) {
-        $("#topthree").html('<ol>');
+        // In the success handler. First overwrite the spinner.
+        $("#topthree").html('');
+        // And now we make a simple list.
+        var items = [];
         $.each(data.tracks, function(key, val) {
-          $('<li/>', {html: '<a href="' + val.href + '">' + val.name + " (" + val.album.name + ")</a>"}).appendTo("#topthree");
+          items.push('<li><a href="' + val.href + '">' + val.name + '</a> (<a href="' + val.album.href + '">' + val.album.name + '</a>)</li>');
         });
-        $('</ol>').appendTo("#topthree");
+        $('<ol/>', {html: items.join('')}).appendTo("#topthree");
+        // Get a photo too, photos are nice.
+        $.getJSON("/image/"+bandName, function(data) {
+          $('<img/>', {'src': data.image.url}).appendTo("#topthree");
+        });
       });
       $("#rockstarForm").submit(function(e) {
         submitHandler(e);
@@ -101,12 +123,15 @@ function submitHandler(e) {
   return false;
 }
 
+// Aaand this one runs as soon as the DOM reaches ready state.
 $(document).ready(function($) {
-  $("#emailAddress").blur(function() {
+  // Attach validation to the email field
+  $("#emailAddress").focusout(function() {
     emailVerification($(this).val());
   });
+  // Override the submit function of the form
   $("#rockstarForm").submit(function(e) {submitHandler(e)});
-  
+  // Attach validation to required fields
   $("input[type=text].required").focusout(function(e) {
     checkRequired(this);
   });

@@ -30,8 +30,10 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
+// Setup routes.
 app.get('/', routes.index);
 app.get('/topthree/:band', band.topthree);
+app.get('/image/:band', band.image);
 app.post('/submit', submission.validate);
 
 http.createServer(app).listen(app.get('port'), function(){
