@@ -8,10 +8,10 @@ http = require('http');
 
 music = {
   tracks: function(b,c) {
-    this.get("/search/1/track.json?q=" + b, c, 'spotify')
+    this.get("/search/1/track.json?q=artist:" + b.artist, c, 'spotify')
   },
-  image: function(b,c) {
-    this.get("/api/v4/artist/images?api_key=0OTOYR1HMTOLDLNMY&format=json&results=1&name=" + b, c, 'echonest')
+  images: function(b,c) {
+    this.get("/api/v4/artist/images?api_key=0OTOYR1HMTOLDLNMY&format=json&results=4&name=" + b, c, 'echonest')
  },
   get: function (b, c, source) {
     serviceHost = '';
@@ -53,11 +53,14 @@ music = {
 };
 
 // This one calls Echonest
-exports.image = function(req, res) {
+exports.images = function(req, res) {
   result = {};
-  music.image(req.params.band, function(err, data) {
+  music.images(req.query.q, function(err, data) {
     if (err) return res.end('Error: ' + err);
-    result.image = data.response.images[0];
+    for (id in data.response.images) {
+      result[id] = data.response.images[id];
+    }
+//    result.image = data.response.images[0];
     res.json(result);
   });
 };
@@ -67,7 +70,7 @@ exports.topthree = function(req, res) {
   result = {
     tracks: {}
   };
-  music.tracks(req.params.band, function (err, data) {
+  music.tracks({artist: req.query.q}, function (err, data) {
     if (err) return res.end('Error: ' + err);
     // Won't bother with looping since we're only getting the first three
     result.tracks.one = data.tracks[0];
