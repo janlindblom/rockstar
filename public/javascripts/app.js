@@ -43,14 +43,30 @@
 // Pattern matching for verifying an email address
 function verifyEmail(req) {
   var pattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
-  if (pattern.test(req)) {
+  if (req === '') {
+    return false;
+  } else if (pattern.test(req)) {
     return true;
   } else {
     return false;
   }
 }
 
-// This one is used by the form to provide the right feedback
+function verifyZip(value) {
+  value = value.replace(/ /g, '');
+  if (value === '') {
+    return false;
+  } else if ((parseFloat(value) == parseInt(value)) && !isNaN(value)) {
+    if (value.length == 5) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+}
+
 function emailVerification(text) {
   var hadError = false;
   if (verifyEmail(text)) {
@@ -62,6 +78,20 @@ function emailVerification(text) {
     $("#emailError").addClass("error");
   }
   return hadError;
+}
+
+function zipCodeVerification(text) {
+  isok = verifyZip(text);
+  console.log(text);
+  console.log(isok);
+  if (isok === true) {
+    $("#zipCodeError").text("");
+    $("#zipCodeError").removeClass("error");
+  } else {
+    $("#zipCodeError").text("Det där är inget postnummer!");
+    $("#zipCodeError").addClass("error");
+  }
+  return isok;
 }
 
 // This one is used by the form to check required fields
@@ -101,7 +131,7 @@ function submitHandler(e) {
       $("#rockstarFormContainer").html(html);
       // Let's fetch some songs!
       // The /topthree route returns the three first tracks by a given artist as JSON.
-      $.getJSON("/topthree/"+bandName, function(data) {
+      $.getJSON("/topthree", { q: bandName }, function(data) {
         // In the success handler. First overwrite the spinner.
         $("#topthree").html('');
         // And now we make a simple list.
@@ -110,9 +140,13 @@ function submitHandler(e) {
           items.push('<li><a href="' + val.href + '">' + val.name + '</a> (<a href="' + val.album.href + '">' + val.album.name + '</a>)</li>');
         });
         $('<ol/>', {html: items.join('')}).appendTo("#topthree");
-        // Get a photo too, photos are nice.
-        $.getJSON("/image/"+bandName, function(data) {
-          $('<img/>', {'src': data.image.url}).appendTo("#topthree");
+        // Get some photos too, photos are nice.
+        $.getJSON("/images", { q: bandName }, function(data) {
+          images = [];
+          $.each(data, function(key, val) {
+            images.push('<li><a href="#" class="th"><img src="' + val.url + '"/></a></li>');
+          });
+          $('<ul/>', {'html': images.join(''), 'class': 'two-up block-grid'}).appendTo("#topthree");
         });
       });
       $("#rockstarForm").submit(function(e) {
@@ -129,10 +163,16 @@ $(document).ready(function($) {
   $("#emailAddress").focusout(function() {
     emailVerification($(this).val());
   });
-  // Override the submit function of the form
-  $("#rockstarForm").submit(function(e) {submitHandler(e)});
+  // Attach validation to the zipcode field
+  $("#zipCode").focusout(function() {
+    zipCodeVerification($(this).val());
+  });
   // Attach validation to required fields
   $("input[type=text].required").focusout(function(e) {
     checkRequired(this);
+  });
+  // Override the submit function of the form
+  $("#rockstarForm").submit(function(e) {
+    submitHandler(e);
   });
 });
